@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { GetAllRoomsFilterDto } from './dto/get-all-rooms-filter.dto';
 import { Room } from './models/room.model';
@@ -12,7 +12,7 @@ export class RoomsController {
     ){}
 
     @Get()
-    getRooms(@Query() filterDto: GetAllRoomsFilterDto): Room[] {
+    getRooms(@Query(ValidationPipe) filterDto: GetAllRoomsFilterDto): Room[] {
         if (Object.keys(filterDto).length)
             return this._roomsService.getRoomsWithFilter(filterDto);
         else
@@ -25,6 +25,7 @@ export class RoomsController {
     }
 
     @Post()
+    @UsePipes(ValidationPipe)
     createRoom(@Body() createRoomDto: CreateRoomDto): Room {
         return this._roomsService.createRoom(createRoomDto);
     }

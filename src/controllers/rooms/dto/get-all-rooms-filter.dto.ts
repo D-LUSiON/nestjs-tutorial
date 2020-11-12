@@ -1,4 +1,11 @@
+import { IsNotEmpty, IsOptional } from "class-validator";
+
 export class GetAllRoomsFilterDto {
+    @IsOptional()
+    @IsNotEmpty()
     title: string;
-    description;
+
+    @IsOptional()
+    @IsNotEmpty()
+    description: string;
 }
