@@ -20,7 +20,7 @@ export class RoomsController {
     }
 
     @Get(':id')
-    getRoomById(@Param() id: string): Room{
+    getRoomById(@Param('id') id: string): Room{
         return this._roomsService.getRoomById(id);
     }
 
@@ -35,7 +35,7 @@ export class RoomsController {
     }
 
     @Delete(':id')
-    deleteRoom(@Param() id: string): void {
+    deleteRoom(@Param('id') id: string): void {
         return this._roomsService.deleteRoom(id);
     }
 }
