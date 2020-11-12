@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { GetAllRoomsFilterDto } from './dto/get-all-rooms-filter.dto';
 import { Room } from './models/room.model';
@@ -18,7 +18,7 @@ export class RoomsService {
 
         if (title)
             rooms = rooms.filter(room => room.title.indexOf(title) > -1);
-            
+
         if (description)
             rooms = rooms.filter(room => room.description.indexOf(description) > -1);
 
@@ -28,12 +28,16 @@ export class RoomsService {
     getRoomById(id: string): Room {
         const found = this._rooms.find(room => room.id === id);
 
+        if (!found)
+            throw new NotFoundException(`Task with id "${id}" not found!`);
+
         return found;
     }
 
     createRoom(room: CreateRoomDto): Room {
         const { title, description } = room;
         const new_room = new Room({
+            id: this._rooms.length + 1,
             title,
             description
         });
