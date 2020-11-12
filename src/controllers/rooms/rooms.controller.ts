@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { GetAllRoomsFilterDto } from './dto/get-all-rooms-filter.dto';
 import { Room } from './models/room.model';
@@ -20,7 +20,7 @@ export class RoomsController {
     }
 
     @Get(':id')
-    getRoomById(@Param('id') id: string): Room{
+    getRoomById(@Param('id', ParseIntPipe) id: string): Room {
         return this._roomsService.getRoomById(id);
     }
 
@@ -35,7 +35,7 @@ export class RoomsController {
     }
 
     @Delete(':id')
-    deleteRoom(@Param('id') id: string): void {
+    deleteRoom(@Param('id', ParseIntPipe) id: string): void {
         return this._roomsService.deleteRoom(id);
     }
 }
