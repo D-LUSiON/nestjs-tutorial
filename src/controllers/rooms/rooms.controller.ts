@@ -14,7 +14,7 @@ export class RoomsController {
     @Get()
     getRooms(@Query() filterDto: GetAllRoomsFilterDto): Room[] {
         if (Object.keys(filterDto).length)
-            return this._roomsService.getRoomsFilter(filterDto);
+            return this._roomsService.getRoomsWithFilter(filterDto);
         else
         return this._roomsService.getAllRooms();
     }
