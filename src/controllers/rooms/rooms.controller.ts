@@ -1,4 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { CreateRoomDto } from './dto/create-room.dto';
+import { GetAllRoomsFilterDto } from './dto/get-all-rooms-filter.dto';
 import { Room } from './models/room.model';
 import { RoomsService } from './rooms.service';
 
@@ -10,8 +12,11 @@ export class RoomsController {
     ){}
 
     @Get()
-    getRooms(): Room[] {
-        return this._roomsService.getRooms();
+    getRooms(@Query() filterDto: GetAllRoomsFilterDto): Room[] {
+        if (Object.keys(filterDto).length)
+            return this._roomsService.getRoomsFilter(filterDto);
+        else
+        return this._roomsService.getAllRooms();
     }
 
     @Get(':id')
@@ -20,8 +25,8 @@ export class RoomsController {
     }
 
     @Post()
-    createRoom(@Body() data: any): Room {
-        return this._roomsService.createRoom(data);
+    createRoom(@Body() createRoomDto: CreateRoomDto): Room {
+        return this._roomsService.createRoom(createRoomDto);
     }
 
     @Patch()
