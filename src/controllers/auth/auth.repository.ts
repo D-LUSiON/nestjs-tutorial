@@ -4,6 +4,7 @@ import { CredentialsDto } from './dto/credentials.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { User } from './entities/user.entity';
 import { UserPayload } from './models/user-payload.interface';
+import * as bcrypt from 'bcrypt';
 
 @EntityRepository(User)
 export class AuthRepository extends Repository<User> {
@@ -13,7 +14,8 @@ export class AuthRepository extends Repository<User> {
         const user = new User();
         user.name = name;
         user.username = username;
-        user.password = password;
+        user.salt = await bcrypt.genSalt();
+        user.password = await bcrypt.hash(password, user.salt);
 
         try {
             await user.save();
@@ -33,14 +35,9 @@ export class AuthRepository extends Repository<User> {
 
     async signIn(credentialsDto: CredentialsDto): Promise<UserPayload> {
         const { username, password } = credentialsDto;
-        const user = await this.findOne({
-            where: {
-                username,
-                password
-            }
-        });
+        const user = await this.findOne({ username });
 
-        if (user) {
+        if (user && await user.validatePassword(password)) {
             return {
                 id: user.id,
                 name: user.name,
