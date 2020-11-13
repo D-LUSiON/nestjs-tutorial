@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional } from "class-validator";
 
-export class GetAllRoomsFilterDto {
+export class UpdateRoomDto {
     @IsOptional()
     @IsNotEmpty()
     title: string;

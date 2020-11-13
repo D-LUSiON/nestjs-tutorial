@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
-import { GetAllRoomsFilterDto } from './dto/get-all-rooms-filter.dto';
-import { Room } from './models/room.model';
+import { GetRoomsFilterDto } from './dto/get-rooms-filter.dto';
+import { UpdateRoomDto } from './dto/update-room.dto';
+import { Room } from './entities/room.entity';
 import { RoomsService } from './rooms.service';
 
 @Controller('rooms')
@@ -12,31 +13,30 @@ export class RoomsController {
     ){}
 
     @Get()
-    getRooms(@Query(ValidationPipe) filterDto: GetAllRoomsFilterDto): Room[] {
-        if (Object.keys(filterDto).length)
-            return this._roomsService.getRoomsWithFilter(filterDto);
-        else
-        return this._roomsService.getAllRooms();
+    getRooms(@Query(ValidationPipe) filterDto: GetRoomsFilterDto): Promise<Room[]> {
+        return this._roomsService.getAllRooms(filterDto);
     }
 
     @Get(':id')
-    getRoomById(@Param('id', ParseIntPipe) id: string): Room {
+    getRoomById(@Param('id', ParseIntPipe) id: number): Promise<Room> {
         return this._roomsService.getRoomById(id);
     }
 
     @Post()
     @UsePipes(ValidationPipe)
-    createRoom(@Body() createRoomDto: CreateRoomDto): Room {
+    createRoom(@Body() createRoomDto: CreateRoomDto): Promise<Room> {
         return this._roomsService.createRoom(createRoomDto);
     }
 
-    @Patch()
-    updateRoom(@Body() room: any): Room {
-        return this._roomsService.updateRoom(room);
+    @Patch(':id')
+    updateRoom(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() updateRoomDto: UpdateRoomDto): Promise<Room> {
+        return this._roomsService.updateRoom(id, updateRoomDto);
     }
 
     @Delete(':id')
-    deleteRoom(@Param('id', ParseIntPipe) id: string): void {
+    deleteRoom(@Param('id', ParseIntPipe) id: number): Promise<void> {
         return this._roomsService.deleteRoom(id);
     }
 }

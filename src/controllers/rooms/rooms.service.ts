@@ -1,64 +1,58 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateRoomDto } from './dto/create-room.dto';
-import { GetAllRoomsFilterDto } from './dto/get-all-rooms-filter.dto';
-import { Room } from './models/room.model';
+import { GetRoomsFilterDto } from './dto/get-rooms-filter.dto';
+import { UpdateRoomDto } from './dto/update-room.dto';
+import { Room } from './entities/room.entity';
+import { RoomsRepository } from './rooms.repository';
 
 @Injectable()
 export class RoomsService {
 
-    private _rooms: Room[] = [];
+    constructor(
+        @InjectRepository(RoomsRepository)
+        private _roomsRepository: RoomsRepository
+    ) { }
 
-    getAllRooms(): Room[] {
-        return [...this._rooms];
+    async getAllRooms(filterDto: GetRoomsFilterDto): Promise<Room[]> {
+        return this._roomsRepository.getTasks(filterDto);
     }
 
-    getRoomsWithFilter(filterDto: GetAllRoomsFilterDto): Room[] {
-        const { title, description } = filterDto;
-        let rooms = this.getAllRooms();
+    async getRoomById(id: number) {
+        const found = await this._roomsRepository.findOne(id);
+
+        if (!found) {
+            throw new NotFoundException(`Task with id "${id}" not found!`);
+        }
+
+        return found;
+    }
+
+    async createRoom(createRoomDto: CreateRoomDto): Promise<Room> {
+        return this._roomsRepository.createRoom(createRoomDto);
+    }
+
+    async updateRoom(id: number, updateRoomDto: UpdateRoomDto): Promise<Room> {
+        const room = await this.getRoomById(id);
+
+        const { title, description } = updateRoomDto;
 
         if (title)
-            rooms = rooms.filter(room => room.title.indexOf(title) > -1);
+            room.title = title;
 
         if (description)
-            rooms = rooms.filter(room => room.description.indexOf(description) > -1);
+            room.description = description;
 
-        return rooms;
+        await room.save();
+        return room;
     }
 
-    getRoomById(id: string): Room {
-        const found = this._rooms.find(room => room.id === id);
+    async deleteRoom(id: number): Promise<void> {
+        const result = await this._roomsRepository.delete(id);
 
-        if (!found)
-            throw new NotFoundException(`Task with id "${id}" not found!`);
-
-        return found;
-    }
-
-    createRoom(room: CreateRoomDto): Room {
-        const { title, description } = room;
-        const new_room = new Room({
-            id: this._rooms.length + 1,
-            title,
-            description
-        });
-        this._rooms.push(new_room);
-
-        return new_room;
-    }
-
-    updateRoom(room): Room {
-        let found = this.getRoomById(room.id);
-        found = new Room({
-            ...found,
-            ...room
-        });
-
-        return found;
-    }
-
-    deleteRoom(id: string): void {
-        const found = this.getRoomById(id);
-        this._rooms = this._rooms.filter(room => room.id !== found.id);
+        if (!result.affected) {
+            throw new NotFoundException(`Room with id "${id}" not found!`);
+        }
     }
 
 }
