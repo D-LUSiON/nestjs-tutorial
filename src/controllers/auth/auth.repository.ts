@@ -1,10 +1,11 @@
-import { ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { EntityRepository, Repository } from 'typeorm';
 import { CredentialsDto } from './dto/credentials.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { User } from './entities/user.entity';
 import { UserPayload } from './models/user-payload.interface';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @EntityRepository(User)
 export class AuthRepository extends Repository<User> {
@@ -33,7 +34,7 @@ export class AuthRepository extends Repository<User> {
         }
     }
 
-    async signIn(credentialsDto: CredentialsDto): Promise<UserPayload> {
+    async validateUserPassword(credentialsDto: CredentialsDto): Promise<UserPayload> {
         const { username, password } = credentialsDto;
         const user = await this.findOne({ username });
 
@@ -42,9 +43,9 @@ export class AuthRepository extends Repository<User> {
                 id: user.id,
                 name: user.name,
                 username
-            }
+            };
         } else {
-            throw new NotFoundException('User not found!');
+            return null;
         }
     }
 }
