@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserPayload } from '../auth/models/user-payload.interface';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { GetRoomsFilterDto } from './dto/get-rooms-filter.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
@@ -15,7 +16,7 @@ export class RoomsService {
     ) { }
 
     async getAllRooms(filterDto: GetRoomsFilterDto): Promise<Room[]> {
-        return this._roomsRepository.getTasks(filterDto);
+        return this._roomsRepository.getRooms(filterDto);
     }
 
     async getRoomById(id: number) {
@@ -28,8 +29,8 @@ export class RoomsService {
         return found;
     }
 
-    async createRoom(createRoomDto: CreateRoomDto): Promise<Room> {
-        return this._roomsRepository.createRoom(createRoomDto);
+    async createRoom(user: UserPayload, createRoomDto: CreateRoomDto): Promise<Room> {
+        return this._roomsRepository.createRoom(user, createRoomDto);
     }
 
     async updateRoom(id: number, updateRoomDto: UpdateRoomDto): Promise<Room> {

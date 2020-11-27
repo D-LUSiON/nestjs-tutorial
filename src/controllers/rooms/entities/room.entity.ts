@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from 'src/controllers/auth/entities/user.entity';
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Room extends BaseEntity {
@@ -10,4 +11,10 @@ export class Room extends BaseEntity {
 
     @Column()
     description: string;
+
+    @ManyToOne(type => User, user => user.rooms, { eager: true })
+    owner: User;
+
+    @Column()
+    ownerId: number;
 }
